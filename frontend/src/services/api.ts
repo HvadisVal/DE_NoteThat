@@ -12,18 +12,17 @@ export const loginUser = async (email: string, password: string) => {
   return await res.json();
 };
 
-export const fetchNotes = async (token: string) => {
-  const res = await fetch(`${API_BASE}/notes`, {
-    headers: {
-      'auth-token': token
-    }
-  });
+const API_URL = 'http://localhost:5001/api/notes';
 
-  return await res.json();
+export const fetchNotes = async (token: string) => {
+  const res = await fetch(API_URL, {
+    headers: { 'auth-token': token }
+  });
+  return res.json();
 };
 
 export const createNote = async (note: any, token: string) => {
-  const res = await fetch(`${API_BASE}/notes`, {
+  const res = await fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,6 +30,25 @@ export const createNote = async (note: any, token: string) => {
     },
     body: JSON.stringify(note)
   });
+  return res.json();
+};
 
-  return await res.json();
+export const updateNote = async (id: string, note: any, token: string) => {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'auth-token': token
+    },
+    body: JSON.stringify(note)
+  });
+  return res.json();
+};
+
+export const deleteNote = async (id: string, token: string) => {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: 'DELETE',
+    headers: { 'auth-token': token }
+  });
+  return res.json();
 };
