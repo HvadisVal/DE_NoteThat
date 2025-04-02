@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { fetchNotes, createNote } from '../services/api';
-import { Link } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const [notes, setNotes] = useState<any[]>([]);
@@ -61,12 +60,13 @@ const Home: React.FC = () => {
 
       {!token ? (
         <p className="text-red-400">
-          No token found. Please{' '}
-          <Link to="/login" className="underline text-blue-500">
-            login
-          </Link>
-          .
-        </p>
+        No token found. Please{' '}
+        <a href="/login" className="underline text-blue-500">
+          login
+        </a>
+        .
+      </p>
+      
       ) : (
         <>
           {error && <p className="text-red-400">{error}</p>}
