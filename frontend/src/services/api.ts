@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = process.env.REACT_APP_API_URL!; // or import.meta.env.VITE_API_URL if you're using Vite
 
 export const loginUser = async (email: string, password: string) => {
   const res = await fetch(`${API_BASE}/auth/login`, {
@@ -12,17 +12,15 @@ export const loginUser = async (email: string, password: string) => {
   return await res.json();
 };
 
-const API_URL = 'http://localhost:5001/api/notes';
-
 export const fetchNotes = async (token: string) => {
-  const res = await fetch(API_URL, {
+  const res = await fetch(`${API_BASE}/notes`, {
     headers: { 'auth-token': token }
   });
   return res.json();
 };
 
 export const createNote = async (note: any, token: string) => {
-  const res = await fetch(API_URL, {
+  const res = await fetch(`${API_BASE}/notes`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -34,7 +32,7 @@ export const createNote = async (note: any, token: string) => {
 };
 
 export const updateNote = async (id: string, note: any, token: string) => {
-  const res = await fetch(`${API_URL}/${id}`, {
+  const res = await fetch(`${API_BASE}/notes/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -46,7 +44,7 @@ export const updateNote = async (id: string, note: any, token: string) => {
 };
 
 export const deleteNote = async (id: string, token: string) => {
-  const res = await fetch(`${API_URL}/${id}`, {
+  const res = await fetch(`${API_BASE}/notes/${id}`, {
     method: 'DELETE',
     headers: { 'auth-token': token }
   });
