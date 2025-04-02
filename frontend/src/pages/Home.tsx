@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const [notes, setNotes] = useState<any[]>([]);
-  // Removed unused error state
+  const [error, setError] = useState<string | null>(null); // ✅ fixed typing
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newNote, setNewNote] = useState({
     title: '',
@@ -20,7 +20,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const getNotes = async () => {
       if (!token) {
-        console.error('No token found. Please login.');
+        setError('No token found. Please login.');
         return;
       }
 
@@ -28,11 +28,12 @@ const Home: React.FC = () => {
         const data = await fetchNotes(token);
         if (Array.isArray(data)) {
           setNotes(data);
+          setError(null);
         } else {
-          console.error('Failed to fetch notes.');
+          setError('Failed to fetch notes.');
         }
-      } catch (err) {
-        console.error('Error fetching notes.');
+      } catch {
+        setError('Error fetching notes.');
       }
     };
 
@@ -68,6 +69,8 @@ const Home: React.FC = () => {
         </p>
       ) : (
         <>
+          {error && <p className="text-red-400">{error}</p>}
+
           <button
             onClick={() => setShowCreateModal(true)}
             className="mb-6 bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-lg font-semibold text-white"
