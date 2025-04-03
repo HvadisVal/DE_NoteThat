@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchNotes, createNote } from '../services/api';
+import { fetchNotes, createNote, updateNote } from '../services/api';
 
 const Home: React.FC = () => {
   const [notes, setNotes] = useState<any[]>([]);
@@ -13,6 +13,8 @@ const Home: React.FC = () => {
     tags: '',
     pinned: false,
   });
+
+  const [searchTerm, setSearchTerm] = useState('');
 
   const token = localStorage.getItem('token');
 
@@ -47,7 +49,8 @@ const Home: React.FC = () => {
           <button
             onClick={() => {
               localStorage.removeItem('token');
-              window.location.reload();
+              window.location.href = '/';
+
             }}
             className="text-red-400 hover:text-white"
           >
@@ -78,23 +81,108 @@ const Home: React.FC = () => {
             + New Note
           </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {notes.map((note) => (
+          <input
+  type="text"
+  placeholder="Search notes..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="mb-6 w-full md:w-1/2 p-2 rounded bg-gray-700 text-white placeholder-gray-400"
+/>
+
+
+
+{(() => {
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const pinnedNotes = filteredNotes.filter(note => note.pinned);
+  const unpinnedNotes = filteredNotes.filter(note => !note.pinned);
+
+  return (
+    <>
+      {/* Pinned Notes */}
+      {pinnedNotes.length > 0 && (
+        <>
+          <h2 className="text-lg font-semibold text-yellow-300 mb-2">📌 Pinned</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {pinnedNotes.map(note => (
               <div
                 key={note._id}
                 className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-blue-500/20 hover:border-blue-500 transition"
               >
                 <h3 className="text-lg font-bold text-blue-300">{note.title}</h3>
                 <p className="text-sm text-gray-300 mt-2">{note.content}</p>
-                <div className="mt-3 text-xs text-gray-400 flex justify-between">
+                <div className="mt-3 text-xs text-gray-400 flex justify-between items-center">
                   <span>{new Date(note.timestamp).toLocaleDateString()}</span>
-                  <span className={`px-2 py-1 rounded-full ${note.color} bg-opacity-20`}>
-                    {note.category}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-full ${note.color} bg-opacity-20`}>
+                      {note.category}
+                    </span>
+                    <button
+                      className="text-yellow-400 hover:text-yellow-200 text-sm"
+                      onClick={async () => {
+                        const updated = await updateNote(note._id, { pinned: !note.pinned }, token!);
+                        setNotes(prev =>
+                          prev.map(n => (n._id === updated._id ? updated : n))
+                        );
+                      }}
+                    >
+                      📌 Unpin
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+        </>
+      )}
+
+      {/* Divider */}
+      {pinnedNotes.length > 0 && unpinnedNotes.length > 0 && (
+        <hr className="border-blue-500/20 my-4" />
+      )}
+
+      {/* Unpinned Notes */}
+      {unpinnedNotes.length > 0 && (
+        <>
+          {unpinnedNotes.map(note => (
+            <div
+              key={note._id}
+              className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-blue-500/20 hover:border-blue-500 transition mb-4"
+            >
+              <h3 className="text-lg font-bold text-blue-300">{note.title}</h3>
+              <p className="text-sm text-gray-300 mt-2">{note.content}</p>
+              <div className="mt-3 text-xs text-gray-400 flex justify-between items-center">
+                <span>{new Date(note.timestamp).toLocaleDateString()}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 rounded-full ${note.color} bg-opacity-20`}>
+                    {note.category}
+                  </span>
+                  <button
+                    className="text-yellow-400 hover:text-yellow-200 text-sm"
+                    onClick={async () => {
+                      const updated = await updateNote(note._id, { pinned: !note.pinned }, token!);
+                      setNotes(prev =>
+                        prev.map(n => (n._id === updated._id ? updated : n))
+                      );
+                    }}
+                  >
+                    📍 Pin
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </>
+  );
+})()}
+
+
+
         </>
       )}
 
