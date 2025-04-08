@@ -3,8 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Home from '../Home';
 import * as api from '../../services/api';
-
-jest.mock('../../utils/api');
+jest.mock('../../services/api');
 
 const mockNote = {
   _id: '1',
