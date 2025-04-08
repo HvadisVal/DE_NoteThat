@@ -33,20 +33,29 @@ const TaskBoard: React.FC = () => {
     avatar: '',
   });
 
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+
   useEffect(() => {
     const loadTasks = async () => {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/tasks`);
-      const fetched: Task[] = await res.json();
-      const grouped = {
-        todo: fetched.filter(task => task.status === 'todo'),
-        inProgress: fetched.filter(task => task.status === 'inProgress'),
-        done: fetched.filter(task => task.status === 'done')
-      };
-      setTasks(grouped);
+      try {
+        const res = await fetch(`${API_BASE}/tasks`);
+        if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+        const fetched: Task[] = await res.json();
+        console.log("✅ Loaded tasks:", fetched);
+
+        const grouped = {
+          todo: fetched.filter(task => task.status === 'todo'),
+          inProgress: fetched.filter(task => task.status === 'inProgress'),
+          done: fetched.filter(task => task.status === 'done'),
+        };
+        setTasks(grouped);
+      } catch (err) {
+        console.error("❌ Error loading tasks:", err);
+      }
     };
+
     loadTasks();
-  }, []);
-  
+  }, [API_BASE]);
 
   const handleDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
@@ -68,33 +77,53 @@ const TaskBoard: React.FC = () => {
       [destCol]: destItems,
     });
 
-    await fetch(`${process.env.REACT_APP_API_URL}/tasks/${movedItem._id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(movedItem),
-    });
+    try {
+      const res = await fetch(`${API_BASE}/tasks/${movedItem._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(movedItem),
+      });
+      if (!res.ok) throw new Error(`Update failed with status ${res.status}`);
+      console.log("🔄 Updated task:", movedItem);
+    } catch (err) {
+      console.error("❌ Failed to update task status:", err);
+    }
   };
 
   const createTask = async () => {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/tasks`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newTask),
-    });
-    const created = await res.json();
-    setTasks((prev) => ({
-      ...prev,
-      [created.status]: [...prev[created.status], created],
-    }));
-    setShowModal(false);
-    setNewTask({ text: '', status: 'todo', color: 'bg-blue-500', deadline: '', avatar: '' });
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTask),
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(`Create failed with status ${res.status}: ${errorData.message}`);
+      }
+  
+      const created = await res.json();
+      setTasks((prev) => ({
+        ...prev,
+        [created.status]: [...prev[created.status], created],
+      }));
+  
+      setShowModal(false);
+      setNewTask({ text: '', status: 'todo', color: 'bg-blue-500', deadline: '', avatar: '' });
+    } catch (err: any) {
+      console.error('❌ Failed to create task:', err);
+      alert(err.message); // temporary
+    }
   };
+  
 
   return (
     <div className="mt-10">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-white">📝 Task Board</h2>
         <button
+          type="button"
           className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
           onClick={() => setShowModal(true)}
         >
@@ -115,6 +144,11 @@ const TaskBoard: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-3 capitalize text-blue-300">
                     {columnId.replace(/([A-Z])/g, ' $1')}
                   </h3>
+
+                  {columnTasks.length === 0 && (
+                    <p className="text-sm text-gray-400 italic">No tasks</p>
+                  )}
+
                   {columnTasks.map((task, index) => (
                     <Draggable draggableId={task._id} index={index} key={task._id}>
                       {(provided: DraggableProvided) => (
@@ -147,7 +181,7 @@ const TaskBoard: React.FC = () => {
         </div>
       </DragDropContext>
 
-      {/* Modal for creating task */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-gray-900 p-6 rounded-lg w-full max-w-md space-y-4 border border-blue-500/20 text-white">
@@ -185,10 +219,15 @@ const TaskBoard: React.FC = () => {
               onChange={(e) => setNewTask({ ...newTask, avatar: e.target.value })}
             />
             <div className="flex justify-end gap-4">
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={createTask}
                 className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded"
               >

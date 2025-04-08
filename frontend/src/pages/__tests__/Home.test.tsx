@@ -73,7 +73,7 @@ test('creates a new note and displays it', async () => {
   render(<Home />);
 
   // Open modal
-  const newNoteBtn = screen.getByText('+ New Note');
+  const newNoteBtn = screen.getByRole('button', { name: /new note/i });
   userEvent.click(newNoteBtn);
 
   // Fill in form
