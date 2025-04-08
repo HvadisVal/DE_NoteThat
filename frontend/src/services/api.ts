@@ -50,3 +50,9 @@ export const deleteNote = async (id: string, token: string) => {
   });
   return res.json();
 };
+
+export const fetchTasks = async () => {
+  const res = await fetch('http://localhost:5001/api/tasks');
+  return res.json();
+};
+
