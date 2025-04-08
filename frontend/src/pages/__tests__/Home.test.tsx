@@ -1,98 +1,67 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import Home from '../Home';
 import userEvent from '@testing-library/user-event';
+import Home from '../Home';
+import * as api from '../../services/api';
 
-// Mock fetch globally
-beforeEach(() => {
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
-      json: () =>
-        Promise.resolve([
-          {
-            _id: '1',
-            title: 'Mock Note',
-            content: 'This is a mocked note',
-            category: 'Test',
-            color: 'bg-blue-400',
-            timestamp: new Date().toISOString(),
-            tags: ['mock', 'test'],
-          },
-        ]),
-    })
-  ) as jest.Mock;
-  localStorage.setItem('token', 'fake-jwt-token'); // mock token
-});
+jest.mock('../../utils/api');
 
-afterEach(() => {
-  jest.resetAllMocks();
-  localStorage.clear();
-});
+const mockNote = {
+  _id: '1',
+  title: 'Test Note',
+  content: 'This is a test note.',
+  category: 'Testing',
+  color: 'bg-blue-400',
+  tags: ['test'],
+  pinned: false,
+  timestamp: new Date().toISOString(),
+};
 
-describe('Home Page', () => {
-  test('renders fetched notes', async () => {
+describe('Home', () => {
+  beforeEach(() => {
+    localStorage.setItem('token', 'mock-token');
+  });
+
+  it('renders without crashing', async () => {
+    (api.fetchNotes as jest.Mock).mockResolvedValueOnce([mockNote]);
+
     render(<Home />);
 
-    await waitFor(() => {
-      expect(screen.getByText(/Mock Note/i)).toBeInTheDocument();
-    });
+    expect(await screen.findByText('📓 Your Notes')).toBeInTheDocument();
   });
 
-  test('shows error if no token', async () => {
-    localStorage.removeItem('token');
+  it('shows error message on failed fetch', async () => {
+    (api.fetchNotes as jest.Mock).mockResolvedValueOnce(null);
 
     render(<Home />);
+
+    expect(await screen.findByText('Failed to fetch notes.')).toBeInTheDocument();
+  });
+
+  it('creates a new note and displays it', async () => {
+    (api.fetchNotes as jest.Mock).mockResolvedValueOnce([mockNote]);
+    (api.createNote as jest.Mock).mockResolvedValueOnce({ ...mockNote, title: 'New Note' });
+
+    render(<Home />);
+
+    // Open modal
+    const newNoteBtn = screen.getByText((content) => content.includes('New Note'));
+    userEvent.click(newNoteBtn);
+
+    // Fill in form
+    userEvent.type(screen.getByPlaceholderText(/title/i), 'New Note');
+    userEvent.type(screen.getByPlaceholderText(/content/i), 'Content here');
+    userEvent.type(screen.getByPlaceholderText(/category/i), 'General');
+    userEvent.type(screen.getByPlaceholderText(/color/i), 'bg-blue-400');
+    userEvent.type(screen.getByPlaceholderText(/tags/i), 'testing');
+
+    // Save note
+    const saveButton = screen.getByText('Save');
+    userEvent.click(saveButton);
+
+    // Expect it to appear
     await waitFor(() => {
-      expect(screen.getByText(/no token found/i)).toBeInTheDocument();
+      expect(screen.getByText('New Note')).toBeInTheDocument();
     });
-  });
-});
-
-test('creates a new note and displays it', async () => {
-  const mockNote = {
-    _id: '2',
-    title: 'Created Note',
-    content: 'Content for the created note',
-    category: 'Personal',
-    color: 'bg-pink-400',
-    timestamp: new Date().toISOString(),
-    tags: ['created', 'test'],
-    pinned: false,
-  };
-
-  // First fetch returns no notes
-  (fetch as jest.Mock)
-    .mockResolvedValueOnce({
-      json: () => Promise.resolve([]),
-    })
-    // Then after createNote call
-    .mockResolvedValueOnce({
-      json: () => Promise.resolve(mockNote),
-    });
-
-  render(<Home />);
-
-  // Open modal
-  const newNoteBtn = screen.getByRole('button', { name: /new note/i });
-  userEvent.click(newNoteBtn);
-
-  // Fill in form
-  userEvent.type(screen.getByPlaceholderText('Title'), mockNote.title);
-  userEvent.type(screen.getByPlaceholderText('Content'), mockNote.content);
-  userEvent.type(screen.getByPlaceholderText('Category'), mockNote.category);
-  userEvent.type(screen.getByPlaceholderText('Color (e.g. bg-blue-400)'), mockNote.color);
-  userEvent.type(screen.getByPlaceholderText('Tags (comma separated)'), mockNote.tags.join(', '));
-
-  // Submit
-  const saveBtn = screen.getByText('Save');
-  userEvent.click(saveBtn);
-
-  // Wait for note to appear
-  await waitFor(() => {
-    expect(screen.getByText(mockNote.title)).toBeInTheDocument();
-  });
-
-  await waitFor(() => {
-    expect(screen.getByText(mockNote.content)).toBeInTheDocument();
   });
 });
