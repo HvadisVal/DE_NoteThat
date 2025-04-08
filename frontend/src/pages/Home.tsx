@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchNotes, createNote, updateNote } from '../services/api';
+import TaskBoard from '../components/TaskBoard';
 
 const Home: React.FC = () => {
   const [notes, setNotes] = useState<any[]>([]);
@@ -259,6 +260,9 @@ const Home: React.FC = () => {
           </div>
         </div>
       )}
+
+<TaskBoard/>
+
     </main>
   );
 };
