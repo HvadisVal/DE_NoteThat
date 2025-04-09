@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
+const swagger_1 = require("./docs/swagger");
 // Import DB connection
 const database_1 = require("./repository/database");
 // Import routes
@@ -25,6 +26,8 @@ app.use('/api/notes', note_routes_1.default);
 app.use('/api/tasks', taskRoutes_1.default);
 // ✅ Connect to MongoDB
 (0, database_1.connect)();
+// ✅ Swagger Docs
+(0, swagger_1.setupSwaggerDocs)(app);
 // ✅ Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {

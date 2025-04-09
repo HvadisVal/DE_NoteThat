@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { setupSwaggerDocs } from './docs/swagger';
 
 // Import DB connection
 import { connect } from './repository/database';
@@ -27,6 +28,9 @@ app.use('/api/tasks', taskRoutes);
 
 // ✅ Connect to MongoDB
 connect();
+
+// ✅ Swagger Docs
+setupSwaggerDocs(app);
 
 // ✅ Start server
 const PORT = process.env.PORT || 5001;
