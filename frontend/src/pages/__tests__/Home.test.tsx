@@ -29,3 +29,4 @@ test('opens modal when clicking + New Note', async () => {
   // ✅ Optional: assert that modal appeared
   expect(await screen.findByText(/Create New Note/i)).toBeInTheDocument();
 });
+

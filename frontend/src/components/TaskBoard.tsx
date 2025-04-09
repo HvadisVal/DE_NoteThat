@@ -92,31 +92,29 @@ const TaskBoard: React.FC = () => {
 
   const createTask = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/tasks`, {
+      console.log("📤 Creating task:", newTask);
+      const res = await fetch(`${API_BASE}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask),
       });
-  
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(`Create failed with status ${res.status}: ${errorData.message}`);
-      }
-  
+
+      if (!res.ok) throw new Error(`Create failed with status ${res.status}`);
+
       const created = await res.json();
+      console.log("✅ Task created:", created);
+
       setTasks((prev) => ({
         ...prev,
         [created.status]: [...prev[created.status], created],
       }));
-  
+
       setShowModal(false);
       setNewTask({ text: '', status: 'todo', color: 'bg-blue-500', deadline: '', avatar: '' });
-    } catch (err: any) {
-      console.error('❌ Failed to create task:', err);
-      alert(err.message); // temporary
+    } catch (err) {
+      console.error("❌ Failed to create task:", err);
     }
   };
-  
 
   return (
     <div className="mt-10">
