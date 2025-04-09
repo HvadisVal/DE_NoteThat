@@ -49,7 +49,7 @@ const Home: React.FC = () => {
     <div className="flex items-center space-x-4">
       <i className="fas fa-cube text-3xl text-blue-400 animate-pulse"></i>
       <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-        HoloNotes
+      NoteThat
       </h1>
     </div>
     <div className="relative">
