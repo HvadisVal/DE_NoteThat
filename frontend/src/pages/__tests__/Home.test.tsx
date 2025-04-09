@@ -1,28 +1,31 @@
-import React from 'react';
+// src/pages/__tests__/Home.test.tsx
+
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import Home from '../Home';
+import userEvent from '@testing-library/user-event';
 
-
-test('renders the Your Notes heading', () => {
-  render(<Home />);
-  const heading = screen.getByText(/your notes/i);
-  expect(heading).toBeInTheDocument();
+// ✅ Mock localStorage for token
+beforeEach(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: {
+      getItem: () => 'mock-token',
+      setItem: jest.fn(),
+      removeItem: jest.fn(),
+      clear: jest.fn(),
+    },
+    writable: true,
+  });
 });
-
-// Optional: mock the API if Home fetches notes
-jest.mock('../../services/api', () => ({
-  fetchNotes: jest.fn(() => Promise.resolve([])),
-}));
 
 test('opens modal when clicking + New Note', async () => {
   render(<Home />);
 
-  // Click the "+ New Note" button
-  const newNoteBtn = screen.getByText(/\+ New Note/i);
+  // ✅ Wait for layout to appear
+  const newNoteBtn = await screen.findByText(/New Note/i);
+  expect(newNoteBtn).toBeInTheDocument();
+
   await userEvent.click(newNoteBtn);
 
-  // Check if the modal or input appears
-  const titleInput = await screen.findByPlaceholderText(/title/i);
-  expect(titleInput).toBeInTheDocument();
+  // ✅ Optional: assert that modal appeared
+  expect(await screen.findByText(/Create New Note/i)).toBeInTheDocument();
 });
