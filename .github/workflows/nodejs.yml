@@ -3,6 +3,10 @@ name: CI - NoteThat App
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - '**/*.md'
+      - 'docs/**'
   pull_request:
     branches: [main]
 
@@ -23,23 +27,49 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: ♻️ Cache frontend node_modules
+        uses: actions/cache@v3
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
       - name: 🔁 Install frontend dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm ci
 
       - name: 🧪 Run frontend tests
         working-directory: ./frontend
-        run: npm test -- --watchAll=false
+        run: CI=true npm test
+
+      - name: ♻️ Cache backend node_modules
+        uses: actions/cache@v3
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
 
       - name: 🔁 Install backend dependencies
         working-directory: ./backend
-        run: npm install
+        run: npm ci
 
-      # Optional backend tests
+      # Optional: add backend tests here if needed
       # - name: 🧪 Run backend tests
       #   working-directory: ./backend
-      #   run: npm test
+      #   run: CI=true npm test
 
       - name: 🏗 Build frontend
         working-directory: ./frontend
         run: npm run build
+
+
+deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: 🚀 Deploy to Render (Simulated)
+        run: echo "🎉 Deployment successful! App is live on Render."
+
