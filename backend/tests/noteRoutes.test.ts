@@ -3,9 +3,7 @@ import express from 'express';
 import noteRoutes from '../routes/note.routes';
 import dotenv from 'dotenv';
 
-if (process.env.NODE_ENV !== 'ci') {
-  dotenv.config({ path: '.env.test' });
-}
+dotenv.config({ path: '.env.test.ci' });
 
 // ✅ Create a minimal Express app instance for isolated testing
 const app = express();

@@ -108,9 +108,9 @@ export const securityToken = (req: Request, res: Response, next: NextFunction): 
   
     const token = raw.split(" ")[1];
   
-    console.log('🔐 CI JWT_SECRET (length):', process.env.JWT_SECRET?.length);
 
     try {
+        console.log("🔐 JWT_SECRET loaded:", process.env.JWT_SECRET);
       const verified = jwt.verify(token, process.env.JWT_SECRET!);
       (req as any).user = verified;
       next();
