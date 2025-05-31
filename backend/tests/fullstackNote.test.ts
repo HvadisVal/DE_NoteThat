@@ -6,7 +6,9 @@ import dotenv from 'dotenv';
 import noteRoutes from '../routes/note.routes';
 import { connect, disconnect } from '../repository/database';
 
-dotenv.config({ path: '.env.test' });
+if (process.env.NODE_ENV !== 'ci') {
+  dotenv.config({ path: '.env.test' });
+}
 
 const app = express();
 app.use(express.json());

@@ -2,7 +2,10 @@ import request from 'supertest';
 import express from 'express';
 import noteRoutes from '../routes/note.routes';
 import dotenv from 'dotenv';
-dotenv.config({ path: ".env.test" });
+
+if (process.env.NODE_ENV !== 'ci') {
+  dotenv.config({ path: '.env.test' });
+}
 
 // ✅ Create a minimal Express app instance for isolated testing
 const app = express();
