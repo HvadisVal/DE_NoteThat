@@ -14,6 +14,12 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      NODE_ENV: ci
+      MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
+      TEST_USER_TOKEN: ${{ secrets.TEST_USER_TOKEN }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
     strategy:
       matrix:
         node-version: [18]
@@ -58,17 +64,10 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: CI=true npm test
-        env:
-          NODE_ENV: ci
-          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
-          TEST_USER_TOKEN: ${{ secrets.TEST_USER_TOKEN }}
-
-
 
       - name: Run E2E tests
         working-directory: ./frontend
         run: npx playwright install --with-deps && npx playwright test --workers=1
-
 
       - name: Build frontend
         working-directory: ./frontend
