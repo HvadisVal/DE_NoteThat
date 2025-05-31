@@ -14,10 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const express_1 = __importDefault(require("express"));
+const mongoose_1 = __importDefault(require("mongoose"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const note_routes_1 = __importDefault(require("../routes/note.routes"));
 const database_1 = require("../repository/database");
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+dotenv_1.default.config({ path: '.env.test' });
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use('/api/notes', note_routes_1.default);
@@ -26,7 +27,7 @@ beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, database_1.connect)();
 }));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, database_1.disconnect)();
+    yield mongoose_1.default.connection.close();
 }));
 describe('🧪 Fullstack Note Creation Test', () => {
     it('should create and retrieve a note for authenticated user', () => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,7 +43,7 @@ describe('🧪 Fullstack Note Creation Test', () => {
             .post('/api/notes')
             .set('auth-token', token)
             .send(testNote);
-        console.log('❌ Create response body:', createRes.body); // ⬅️ log actual backend error
+        console.log('❌ Create response body:', createRes.body); // Helpful during debugging
         expect(createRes.statusCode).toBe(201);
         expect(createRes.body.title).toBe(testNote.title);
         const getRes = yield (0, supertest_1.default)(app)
