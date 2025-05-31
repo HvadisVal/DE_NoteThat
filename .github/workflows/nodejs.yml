@@ -61,6 +61,13 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
+      - name: 🧪 Seed test user    
+        working-directory: ./backend
+        run: npx ts-node scripts/seedTestUser.ts
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
       - name: Run backend tests
         working-directory: ./backend
         run: CI=true npm test
@@ -68,9 +75,7 @@ jobs:
           NODE_ENV: ci
           MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
 
-      - name: 🧪 Seed test user    
-        working-directory: ./backend
-        run: npx ts-node scripts/seedTestUser.ts
+      
 
       - name: Run E2E tests
         working-directory: ./frontend
