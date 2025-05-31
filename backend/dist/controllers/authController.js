@@ -12,9 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.securityToken = void 0;
 exports.registerUser = registerUser;
 exports.loginUser = loginUser;
-exports.securityToken = securityToken;
 exports.validateUserRegInfo = validateUserRegInfo;
 exports.validateUserLogInfo = validateUserLogInfo;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -95,22 +95,28 @@ function loginUser(req, res) {
 /**
  * Middleware to verify JWT and attach user to request
  */
-function securityToken(req, res, next) {
-    const token = req.header("auth-token");
-    console.log('🛡️ token received:', token);
-    if (!token) {
-        res.status(401).json({ error: "Access Denied. No token provided." });
+const securityToken = (req, res, next) => {
+    var _a;
+    const raw = req.get("Authorization") || req.get("auth-token") || "";
+    console.log("🛡️ token received:", raw);
+    console.log("🔐 CI JWT_SECRET (length):", (_a = process.env.JWT_SECRET) === null || _a === void 0 ? void 0 : _a.length);
+    if (!raw.startsWith("Bearer ")) {
+        res.status(403).json({ message: "Access Denied. No token provided." });
         return;
     }
+    const token = raw.split(" ")[1];
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.TOKEN_SECRET);
-        req.user = decoded; // ✅ Attach user to request
+        console.log("🔐 JWT_SECRET loaded:", process.env.JWT_SECRET);
+        const verified = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        req.user = verified;
         next();
     }
-    catch (_a) {
-        res.status(401).send("Invalid Token");
+    catch (err) {
+        console.error("❌ JWT verification error:", err);
+        res.status(401).json({ error: "Invalid token" });
     }
-}
+};
+exports.securityToken = securityToken;
 /**
  * Validation for user registration
  */

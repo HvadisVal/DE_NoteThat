@@ -3,8 +3,9 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
   workers: 1,
+  timeout: 30 * 1000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'https://notethat-lw82.onrender.com/',
     headless: process.env.CI ? true : false,
     viewport: { width: 1280, height: 720 },
     actionTimeout: 0,
@@ -17,10 +18,10 @@ export default defineConfig({
     storageState: undefined,
   },
   
-  webServer: {
+ /*  webServer: {
     command: 'npm start',
     port: 3000,
     timeout: 120 * 1000,
-    reuseExistingServer: true,
-  },
+    reuseExistingServer: false,
+    }, */
 });

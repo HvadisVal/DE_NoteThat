@@ -16,21 +16,31 @@ const supertest_1 = __importDefault(require("supertest"));
 const express_1 = __importDefault(require("express"));
 const note_routes_1 = __importDefault(require("../routes/note.routes"));
 const dotenv_1 = __importDefault(require("dotenv"));
-// ✅ Load environment variables from .env (especially TEST_USER_TOKEN)
-dotenv_1.default.config();
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+dotenv_1.default.config({ path: '.env.test.ci' });
 // ✅ Create a minimal Express app instance for isolated testing
 const app = (0, express_1.default)();
-app.use(express_1.default.json()); // Middleware to parse JSON bodies
-app.use('/api/notes', note_routes_1.default); // Mount the note routes for testing
+app.use(express_1.default.json());
+app.use('/api/notes', note_routes_1.default);
+let token;
+console.log('🔍 TEST_USER_TOKEN in CI:', process.env.TEST_USER_TOKEN || 'undefined');
 describe('Notes API', () => {
-    // ✅ Load a valid token from .env to simulate a logged-in user
-    const token = process.env.TEST_USER_TOKEN;
-    // ✅ Test 1: GET request without a token should be unauthorized
+    // ✅ Load token once before tests
+    beforeAll(() => {
+        const payload = {
+            id: '67e7eb090f54a67cb1707b6c',
+            name: 'Valion',
+            email: 'valion@example.com'
+        };
+        const jwtSecret = process.env.JWT_SECRET || 'fallback';
+        token = jsonwebtoken_1.default.sign(payload, jwtSecret, { expiresIn: '2h' });
+    });
+    // ✅ Test 1: GET request without a token should return 401
     it('should return 401 if user is not authenticated', () => __awaiter(void 0, void 0, void 0, function* () {
         const res = yield (0, supertest_1.default)(app).get('/api/notes');
         expect(res.statusCode).toBe(401);
     }));
-    // ✅ Test 2: POST request without a token should also be unauthorized
+    // ✅ Test 2: POST request without token should return 401
     it('should fail to create note without token', () => __awaiter(void 0, void 0, void 0, function* () {
         const res = yield (0, supertest_1.default)(app).post('/api/notes').send({
             title: 'Test Note',
@@ -38,12 +48,11 @@ describe('Notes API', () => {
         });
         expect(res.statusCode).toBe(401);
     }));
-    // ✅ Test 3: GET request with a valid token should succeed
-    it('should return 200 and notes for valid token', () => __awaiter(void 0, void 0, void 0, function* () {
+    // ✅ Test 3: GET request with a valid token should return 200 or 204
+    it('should return 200 or 204 when authenticated', () => __awaiter(void 0, void 0, void 0, function* () {
         const res = yield (0, supertest_1.default)(app)
             .get('/api/notes')
             .set('Authorization', `Bearer ${token}`);
-        // Expect success — either 200 OK (if notes exist) or 204 No Content (if none)
         expect([200, 204]).toContain(res.statusCode);
     }));
 });

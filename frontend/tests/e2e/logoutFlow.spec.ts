@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('logs out and redirects to landing page', async ({ page }) => {
   // 1. Go to landing page and click Login
-  await page.goto('http://localhost:3000');
+  await page.goto('https://notethat-lw82.onrender.com');
   await page.click('text=Login');
 
   // 2. Fill in login credentials

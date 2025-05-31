@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('user can log in and create a note', async ({ page }) => {
-  await page.goto('http://localhost:3000');
+  await page.goto('https://notethat-lw82.onrender.com');
 
   // 1: Click Login on landing page
   await page.click('text=Login');

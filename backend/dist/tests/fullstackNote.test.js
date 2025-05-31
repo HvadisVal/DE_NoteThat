@@ -16,15 +16,26 @@ const supertest_1 = __importDefault(require("supertest"));
 const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const note_routes_1 = __importDefault(require("../routes/note.routes"));
 const database_1 = require("../repository/database");
-dotenv_1.default.config({ path: '.env.test' });
+dotenv_1.default.config({ path: '.env.test.ci' });
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use('/api/notes', note_routes_1.default);
-const token = process.env.TEST_USER_TOKEN;
+let token;
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, database_1.connect)();
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        throw new Error("❌ JWT_SECRET is missing in CI");
+    }
+    const payload = {
+        id: '67e7eb090f54a67cb1707b6c',
+        name: 'Valion',
+        email: 'valion@example.com',
+    };
+    token = jsonwebtoken_1.default.sign(payload, jwtSecret, { expiresIn: '2h' });
 }));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mongoose_1.default.connection.close();
@@ -41,14 +52,14 @@ describe('🧪 Fullstack Note Creation Test', () => {
         };
         const createRes = yield (0, supertest_1.default)(app)
             .post('/api/notes')
-            .set('auth-token', token)
+            .set('Authorization', `Bearer ${token}`)
             .send(testNote);
-        console.log('❌ Create response body:', createRes.body); // Helpful during debugging
+        console.log('❌ Create response body:', createRes.body);
         expect(createRes.statusCode).toBe(201);
         expect(createRes.body.title).toBe(testNote.title);
         const getRes = yield (0, supertest_1.default)(app)
             .get('/api/notes')
-            .set('auth-token', token);
+            .set('Authorization', `Bearer ${token}`);
         expect(getRes.statusCode).toBe(200);
         const found = getRes.body.find((n) => n.title === testNote.title);
         expect(found).toBeDefined();
