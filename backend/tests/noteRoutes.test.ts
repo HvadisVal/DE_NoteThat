@@ -2,6 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import noteRoutes from '../routes/note.routes';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 dotenv.config({ path: '.env.test.ci' });
 
@@ -17,10 +18,14 @@ console.log('🔍 TEST_USER_TOKEN in CI:', process.env.TEST_USER_TOKEN || 'undef
 describe('Notes API', () => {
   // ✅ Load token once before tests
   beforeAll(() => {
-    token = process.env.TEST_USER_TOKEN || '';
-    if (!token) {
-      throw new Error("❌ TEST_USER_TOKEN is missing from .env.test");
-    }
+    const payload = {
+      id: '67e7eb090f54a67cb1707b6c',
+      name: 'Valion',
+      email: 'valion@example.com'
+    };
+  
+    const jwtSecret = process.env.JWT_SECRET || 'fallback';
+    token = jwt.sign(payload, jwtSecret, { expiresIn: '2h' });
   });
 
   // ✅ Test 1: GET request without a token should return 401
