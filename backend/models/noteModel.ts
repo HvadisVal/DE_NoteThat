@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Note } from '../interfaces/note';
+import { Note, Collaborator } from '../interfaces/note';
 
 const collaboratorSchema = new Schema(
   {
@@ -19,7 +19,9 @@ const noteSchema = new Schema<Note>({
   pinned: { type: Boolean, default: false },
   userId: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
-  collaborators: [collaboratorSchema]
-});
+  collaborators: {
+    type: [collaboratorSchema], // ✅ define schema here
+    default: undefined
+  }});
 
 export const NoteModel = model<Note>('Note', noteSchema);

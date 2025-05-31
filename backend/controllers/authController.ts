@@ -98,6 +98,8 @@ export async function loginUser(req: Request, res: Response) {
 export function securityToken(req: AuthRequest, res: Response, next: NextFunction) {
     const token = req.header("auth-token");
 
+    console.log('🛡️ token received:', token);
+
     if (!token) {
         res.status(400).json({ error: "Access Denied. No token provided." });
         return;

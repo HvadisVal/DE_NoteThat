@@ -97,6 +97,7 @@ function loginUser(req, res) {
  */
 function securityToken(req, res, next) {
     const token = req.header("auth-token");
+    console.log('🛡️ token received:', token);
     if (!token) {
         res.status(400).json({ error: "Access Denied. No token provided." });
         return;

@@ -1,5 +1,11 @@
 import { Document } from 'mongoose';
 
+export interface Collaborator {
+  userId: string;
+  name: string;
+  avatar?: string;
+}
+
 export interface Note extends Document {
   title: string;
   content: string;
@@ -7,7 +13,7 @@ export interface Note extends Document {
   color: string;
   tags: string[];
   pinned: boolean;
-  userId: string; // references the user who created the note
+  userId: string;
   timestamp: Date;
-  collaborators: string[]; // optional list of image URLs or user IDs
+  collaborators?: Collaborator[]; 
 }

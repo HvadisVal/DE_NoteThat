@@ -17,6 +17,9 @@ const noteSchema = new mongoose_1.Schema({
     pinned: { type: Boolean, default: false },
     userId: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
-    collaborators: [collaboratorSchema]
+    collaborators: {
+        type: [collaboratorSchema], // ✅ define schema here
+        default: undefined
+    }
 });
 exports.NoteModel = (0, mongoose_1.model)('Note', noteSchema);
