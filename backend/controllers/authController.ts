@@ -95,24 +95,27 @@ export async function loginUser(req: Request, res: Response) {
 /**
  * Middleware to verify JWT and attach user to request
  */
-export function securityToken(req: AuthRequest, res: Response, next: NextFunction) {
-    const token = req.header("auth-token");
-
-    console.log('🛡️ token received:', token);
-
-    if (!token) {
-        res.status(401).json({ error: "Access Denied. No token provided." });
-        return;
+export const securityToken = (req: Request, res: Response, next: NextFunction): void => {
+    console.log("🛡️ token received:", req.get('Authorization'));
+  
+    const authHeader = req.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(403).json({ error: 'Access Denied. No token provided.' });
+      return; // 🔑 ends function correctly
     }
-
+  
+    const token = authHeader.split(' ')[1];
+  
     try {
-        const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string) as User;
-        req.user = decoded; // ✅ Attach user to request
-        next();
-    } catch {
-        res.status(401).send("Invalid Token");
+      const verified = jwt.verify(token, process.env.JWT_SECRET!);
+      (req as any).user = verified;
+      next();
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
     }
-}
+  };
+  
+  
 
 /**
  * Validation for user registration
