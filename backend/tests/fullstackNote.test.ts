@@ -2,6 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 import noteRoutes from '../routes/note.routes';
 import { connect, disconnect } from '../repository/database';
@@ -12,17 +13,28 @@ const app = express();
 app.use(express.json());
 app.use('/api/notes', noteRoutes);
 
-const token = process.env.TEST_USER_TOKEN!;
+let token: string;
 
 beforeAll(async () => {
   await connect();
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error("❌ JWT_SECRET is missing in CI");
+  }
+
+  const payload = {
+    id: '67e7eb090f54a67cb1707b6c',
+    name: 'Valion',
+    email: 'valion@example.com',
+  };
+
+  token = jwt.sign(payload, jwtSecret, { expiresIn: '2h' });
 });
 
 afterAll(async () => {
   await mongoose.connection.close();
 });
-
-console.log('🔍 TEST_USER_TOKEN in CI:', process.env.TEST_USER_TOKEN || 'undefined');
 
 describe('🧪 Fullstack Note Creation Test', () => {
   it('should create and retrieve a note for authenticated user', async () => {
@@ -40,13 +52,13 @@ describe('🧪 Fullstack Note Creation Test', () => {
       .set('Authorization', `Bearer ${token}`)
       .send(testNote);
 
-    console.log('❌ Create response body:', createRes.body); // Helpful during debugging
+    console.log('❌ Create response body:', createRes.body);
     expect(createRes.statusCode).toBe(201);
     expect(createRes.body.title).toBe(testNote.title);
 
     const getRes = await request(app)
       .get('/api/notes')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${token}`);
 
     expect(getRes.statusCode).toBe(200);
     const found = getRes.body.find((n: any) => n.title === testNote.title);
