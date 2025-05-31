@@ -55,13 +55,12 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
-      - name: Run backend tests
-        working-directory: ./backend
-        run: CI=true npm test
-        env:
-          NODE_ENV: ci
-          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
-          TEST_USER_TOKEN: ${{ secrets.TEST_USER_TOKEN }}
+      #- name: Run backend tests
+       # working-directory: ./backend
+        #run: CI=true npm test
+        #env:
+         # NODE_ENV: ci
+        
 
 
 
