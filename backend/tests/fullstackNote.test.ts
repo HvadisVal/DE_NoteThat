@@ -24,6 +24,8 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
+console.log('🔍 TEST_USER_TOKEN in CI:', process.env.TEST_USER_TOKEN || 'undefined');
+
 describe('🧪 Fullstack Note Creation Test', () => {
   it('should create and retrieve a note for authenticated user', async () => {
     const testNote = {

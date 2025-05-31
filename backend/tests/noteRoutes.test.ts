@@ -14,6 +14,8 @@ app.use('/api/notes', noteRoutes);
 
 let token: string;
 
+console.log('🔍 TEST_USER_TOKEN in CI:', process.env.TEST_USER_TOKEN || 'undefined');
+
 describe('Notes API', () => {
   // ✅ Load token once before tests
   beforeAll(() => {

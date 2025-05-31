@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers.authorization;
+  console.log("🧾 HEADERS:", req.headers);
+  console.log("🧪 Authorization (get):", req.get('Authorization'));
+    const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json({ message: 'No token, authorization denied' });

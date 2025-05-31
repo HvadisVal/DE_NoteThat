@@ -1,8 +1,11 @@
 import express from 'express';
 import { getNotes, createNote, updateNote, deleteNote } from '../controllers/noteController';
 import { securityToken } from '../controllers/authController';
+import authMiddleware from '../middleware/authMiddleware';
 
 const router = express.Router();
+
+router.use(authMiddleware);
 
 /**
  * @swagger
