@@ -35,7 +35,7 @@ describe('🧪 Fullstack Note Creation Test', () => {
 
     const createRes = await request(app)
       .post('/api/notes')
-      .set('auth-token', token)
+      .set('Authorization', `Bearer ${token}`)
       .send(testNote);
 
     console.log('❌ Create response body:', createRes.body); // Helpful during debugging
@@ -44,7 +44,7 @@ describe('🧪 Fullstack Note Creation Test', () => {
 
     const getRes = await request(app)
       .get('/api/notes')
-      .set('auth-token', token);
+      .set('Authorization', `Bearer ${token}`)
 
     expect(getRes.statusCode).toBe(200);
     const found = getRes.body.find((n: any) => n.title === testNote.title);

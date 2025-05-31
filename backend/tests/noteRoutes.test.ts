@@ -39,7 +39,7 @@ describe('Notes API', () => {
   it('should return 200 or 204 when authenticated', async () => {
     const res = await request(app)
   .get('/api/notes')
-  .set('auth-token', token);
+  .set('Authorization', `Bearer ${token}`)
 
     
     expect([200, 204]).toContain(res.statusCode);
