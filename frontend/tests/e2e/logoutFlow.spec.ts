@@ -22,6 +22,6 @@ test('logs out and redirects to landing page', async ({ page }) => {
   await page.click('button >> i.fas.fa-user');
 
   // 6. Verify redirect back to landing page
-  await expect(page).toHaveURL('http://localhost:3000/');
+  await expect(page).toHaveURL('https://notethat-lw82.onrender.com');
   await expect(page.locator('text=Welcome to NoteThat')).toBeVisible();
 });
