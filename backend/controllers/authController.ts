@@ -101,7 +101,7 @@ export function securityToken(req: AuthRequest, res: Response, next: NextFunctio
     console.log('🛡️ token received:', token);
 
     if (!token) {
-        res.status(400).json({ error: "Access Denied. No token provided." });
+        res.status(401).json({ error: "Access Denied. No token provided." });
         return;
     }
 
