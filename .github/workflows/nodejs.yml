@@ -83,7 +83,10 @@ jobs:
 
       - name: Run E2E tests
         working-directory: ./frontend
-        run: npm run e2e:test
+        run: |
+          npx wait-on https://notethat-lw82.onrender.com
+           sleep 30
+           npm run e2e:test
 
       - name: Build frontend
         working-directory: ./frontend
