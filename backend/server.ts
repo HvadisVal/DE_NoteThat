@@ -17,23 +17,28 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
-// ✅ Middleware
+//  Middleware
 app.use(cors());
 app.use(express.json()); // enables req.body parsing
 
-// ✅ Routes
+//  Root route for Render and health check
+app.get('/', (req, res) => {
+  res.send('API is running ');
+});
+
+//  Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// ✅ Connect to MongoDB
+//  Connect to MongoDB
 connect();
 
-// ✅ Swagger Docs
+//  Swagger Docs
 setupSwaggerDocs(app);
 
-// ✅ Start server
+//  Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(` Server running on http://localhost:${PORT}`);
 });
