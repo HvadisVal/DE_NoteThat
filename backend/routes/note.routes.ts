@@ -1,11 +1,9 @@
 import express from 'express';
 import { getNotes, createNote, updateNote, deleteNote } from '../controllers/noteController';
-import { securityToken } from '../controllers/authController';
 import authMiddleware from '../middleware/authMiddleware';
+import { securityToken } from '../controllers/authController';
 
 const router = express.Router();
-
-router.use(authMiddleware);
 
 /**
  * @swagger
@@ -13,6 +11,10 @@ router.use(authMiddleware);
  *   name: Notes
  *   description: Notes management
  */
+
+// Apply auth middleware first
+router.use(authMiddleware);
+router.use(securityToken);
 
 /**
  * @swagger
@@ -46,7 +48,10 @@ router.use(authMiddleware);
  *                     type: array
  *                     items:
  *                       type: string
+ *                   pinned:
+ *                     type: boolean
  */
+router.get('/', getNotes);
 
 /**
  * @swagger
@@ -84,6 +89,7 @@ router.use(authMiddleware);
  *       201:
  *         description: Note created successfully
  */
+router.post('/', createNote);
 
 /**
  * @swagger
@@ -111,10 +117,23 @@ router.use(authMiddleware);
  *                 type: string
  *               content:
  *                 type: string
+ *               category:
+ *                 type: string
+ *               color:
+ *                 type: string
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               pinned:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Note updated successfully
+ *       404:
+ *         description: Note not found
  */
+router.put('/:id', updateNote);
 
 /**
  * @swagger
@@ -134,14 +153,9 @@ router.use(authMiddleware);
  *     responses:
  *       200:
  *         description: Note deleted successfully
+ *       404:
+ *         description: Note not found
  */
-
-
-router.use(securityToken); // all routes below require auth
-
-router.get('/', getNotes);
-router.post('/', createNote);
-router.put('/:id', updateNote);
 router.delete('/:id', deleteNote);
 
 export default router;

@@ -95,5 +95,8 @@ jobs:
     needs: build-and-test
 
     steps:
-      - name: Deployment handled by Render
-        run: echo "App is automatically deployed to Render on push to main."
+      -  name:  Deploy Frontend to Render
+         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+
+      -  name:  Deploy Backend to Render
+         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}

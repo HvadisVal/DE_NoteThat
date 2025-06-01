@@ -17,7 +17,7 @@ const Login: React.FC = () => {
 
       if (response.token) {
         localStorage.setItem('token', response.token);
-        navigate('/home'); // Go to home/dashboard
+        navigate('/home'); 
       } else {
         setError(response.error || 'Invalid credentials');
       }

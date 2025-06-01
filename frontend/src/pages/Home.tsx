@@ -4,7 +4,7 @@ import TaskBoard from '../components/TaskBoard';
 
 const Home: React.FC = () => {
   const [notes, setNotes] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null); // ✅ fixed typing
+  const [error, setError] = useState<string | null>(null); 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newNote, setNewNote] = useState({
     title: '',

@@ -1,4 +1,4 @@
-const API_BASE = process.env.REACT_APP_API_URL!; // or import.meta.env.VITE_API_URL if you're using Vite
+const API_BASE = process.env.REACT_APP_API_URL!;
 
 export const loginUser = async (email: string, password: string) => {
   const res = await fetch(`${API_BASE}/auth/login`, {

@@ -13,7 +13,7 @@ beforeEach(() => {
     writable: true,
   });
 
-  // ✅ Mock fetch
+  //  Mock fetch
   global.fetch = jest.fn((url: any, options: any) => {
     if (url.toString().includes('/notes') && options?.method === 'POST') {
       return Promise.resolve({

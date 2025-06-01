@@ -28,10 +28,10 @@ const seed = () => __awaiter(void 0, void 0, void 0, function* () {
             email: 'valion@example.com',
             password: hashed,
         });
-        console.log('✅ Test user seeded.');
+        console.log(' Test user seeded.');
     }
     else {
-        console.log('ℹ️ Test user already exists.');
+        console.log(' Test user already exists.');
     }
     yield mongoose_1.default.disconnect();
 });
